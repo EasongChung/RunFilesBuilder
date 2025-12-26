@@ -33,10 +33,10 @@ jobs:
           mkdir -p downloads
           cd downloads
 
-          # 下载 x86_64 ipk
+          # 下载 arm_cortex-a7_neon-vfpv4 ipk
           curl -L -O $(
             curl -s https://api.github.com/repos/xiaorouji/openwrt-passwall2/releases/latest \
-            | jq -r '.assets[] | select(.name | test("passwall_packages_ipk_x86_64\\.zip")) | .browser_download_url'
+            | jq -r '.assets[] | select(.name | test("passwall_packages_ipk_arm_cortex-a7_neon-vfpv4\\.zip")) | .browser_download_url'
           )
 
           # 下载 aarch64 ipk
@@ -58,12 +58,12 @@ jobs:
           )
 
 
-      - name: Organize files for x86_64
+      - name: Organize files for arm_cortex-a7_neon-vfpv4
         run: |
-          mkdir -p passwall_x86_64/depends passwall_x86_64/main
-          unzip downloads/passwall_packages_ipk_x86_64.zip -d passwall_x86_64/depends
-          rm downloads/passwall_packages_ipk_x86_64.zip
-          cp downloads/luci-*.ipk passwall_x86_64/main/
+          mkdir -p passwall_arm_cortex-a7_neon-vfpv4/depends passwall_arm_cortex-a7_neon-vfpv4/main
+          unzip downloads/passwall_packages_ipk_arm_cortex-a7_neon-vfpv4.zip -d passwall_arm_cortex-a7_neon-vfpv4/depends
+          rm downloads/passwall_packages_ipk_arm_cortex-a7_neon-vfpv4.zip
+          cp downloads/luci-*.ipk passwall_arm_cortex-a7_neon-vfpv4/main/
 
       - name: Organize files for aarch64_cortex-a53
         run: |
@@ -74,7 +74,7 @@ jobs:
 
       - name: Create install.sh scripts
         run: |
-          cat <<EOF > passwall_x86_64/install.sh
+          cat <<EOF > passwall_arm_cortex-a7_neon-vfpv4/install.sh
           #!/bin/sh
           opkg update
           if [ $? -ne 0 ]; then
@@ -88,18 +88,18 @@ jobs:
           opkg install depends/*.ipk
           opkg install main/*.ipk
           EOF
-          chmod +x passwall_x86_64/install.sh
-          cp passwall_x86_64/install.sh passwall_aarch64/install.sh
+          chmod +x passwall_arm_cortex-a7_neon-vfpv4/install.sh
+          cp passwall_arm_cortex-a7_neon-vfpv4/install.sh passwall_aarch64/install.sh
 
       - name: Move passwall2 directories to makeself
         run: |
-          mv passwall_x86_64 makeself/
+          mv passwall_arm_cortex-a7_neon-vfpv4 makeself/
           mv passwall_aarch64 makeself/
 
       - name: Create self-extracting packages
         run: |
           cd makeself
-          ./makeself.sh passwall_x86_64/ passwall2_x86_64_${{ env.LATEST_TAG }}.run "by github action" ./install.sh
+          ./makeself.sh passwall_arm_cortex-a7_neon-vfpv4/ passwall2_arm_cortex-a7_neon-vfpv4_${{ env.LATEST_TAG }}.run "by github action" ./install.sh
           ./makeself.sh passwall_aarch64/ passwall2_aarch64_a53_${{ env.LATEST_TAG }}.run "by github action" ./install.sh
 
       - name: Check file sizes
